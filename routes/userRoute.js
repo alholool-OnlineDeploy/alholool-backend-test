@@ -34,11 +34,11 @@ router.delete("/deleteMe", deleteLoggedUserData);
 
 // Admin
 router.use(authService.allowedTo("admin"));
-router.put(
-  "/changePassword/:id",
-  changeUserPasswordValidator,
-  changeUserPassword
-);
+// router.put(
+//   "/changePassword/:id",
+//   changeUserPasswordValidator,
+//   changeUserPassword
+// );
 
 router.route("/").get(getUsers).post(createUser);
 router.route("/:id").get(getUser).put(updateUser).delete(deleteUser);
