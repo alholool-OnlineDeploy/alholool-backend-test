@@ -1,0 +1,11 @@
+    "templates": [
+        {
+            "template_name": "INV TAX",
+            "template_id": "2969006000005518001",
+            "template_type": "continental"
+        },
+        {
+            "template_name": "ipay",
+            "template_id": "2969006000006341101",
+            "template_type": "continental"
+        },
