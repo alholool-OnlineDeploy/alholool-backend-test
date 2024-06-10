@@ -1,7 +1,7 @@
 // APIs/Controllers/login/loginController.js
-const User = require("../../../Models/UserModel");
+const User = require("../../../models/userModel");
 const jwt = require("jsonwebtoken");
-
+  
 const loginIndividual = async (req, res) => {
   const { email, password } = req.body;
   console.log("Received individual login request:", { email, password });

@@ -15,12 +15,29 @@ const dbConnection = require("./config/database");
 // Routes
 // const mountRoutes = require("./routes");
 const userRoute = require("./routes/userRoute");
+const authRoute = require("./routes/authRoute");
 
 // Connect with db
 dbConnection();
 
 // express app
 const app = express();
+
+// Enable other domains to access your application
+const corsOptions = {
+  origin: "https://alholool-frontend-test.netlify.app",
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  allowedHeaders: "Content-Type,Authorization",
+  credentials: true,
+  optionsSuccessStatus: 204, // For legacy browser support
+  maxAge: 86400,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Preflight requests
+
+// compress all responses
+app.use(compression());
 
 // Middlewares
 app.use(express.json({ limit: "20kb" }));
@@ -33,6 +50,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Mount Routes
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/auth", authRoute);
 
 // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 const limiter = rateLimit({

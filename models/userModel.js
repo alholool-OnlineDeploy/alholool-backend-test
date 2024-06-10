@@ -1,8 +1,14 @@
 const mongoose = require("mongoose");
-// const bcrypt = require("bcryptjs");
+const bcrypt = require("bcryptjs");
+const { v4: uuidv4 } = require("uuid");
+const { type } = require("os");
 
 const userSchema = new mongoose.Schema(
   {
+    _id: {
+      type: String,
+      default: uuidv4,
+    },
     firstName: {
       type: String,
       trim: true,
@@ -23,13 +29,14 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    phone: String,
-    city: String,
+    phone: { type: String, default: "Undefined" },
+    city: { type: String, default: "Undefined" },
     password: {
       type: String,
       required: [true, "password required"],
       minlength: [6, "Too short password"],
     },
+    passwordChangedAt: Date,
     type: {
       type: String,
       enum: [
@@ -53,12 +60,12 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// userSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) return next();
-//   // Hashing user password
-//   this.password = await bcrypt.hash(this.password, 12);
-//   next();
-// });
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  // Hashing user password
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 
