@@ -51,7 +51,7 @@ function getConfirmationToken(payload) {
 async function confirmEmail(user_id, user_email) {
   const accessToken = await getAccessToken();
   const confirmationToken = await getConfirmationToken(user_id);
-  url = `http://localhost:8000/api/v1/auth/confirmationEmail/${confirmationToken}`;
+  url = `https://alholool-backend-test.onrender.com/api/v1/auth/confirmationEmail/${confirmationToken}`;
   data = `
 <main
   style="
