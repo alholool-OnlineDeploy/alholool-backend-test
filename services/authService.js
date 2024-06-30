@@ -8,6 +8,7 @@ const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
 const sendEmail = require("../utils/sendEmail");
 const createToken = require("../utils/createToken");
+const confirmEmail = require("../utils/confirmEmail");
 
 const User = require("../models/userModel");
 
@@ -20,12 +21,19 @@ exports.signup = asyncHandler(async (req, res, next) => {
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     email: req.body.email,
+    phone: req.body.phone,
+    city: req.body.city,
     password: req.body.password,
+    type: req.body.type,
   });
+
+  // Confirm Email
+  confirmEmail(user._id, user.email);
 
   // 2- Generate token
   let payload = {
     id: user._id,
+    zohoID: user.zohoID,
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
@@ -33,16 +41,12 @@ exports.signup = asyncHandler(async (req, res, next) => {
     city: user.city,
     type: user.type,
     role: user.role,
+    active: user.active,
+    confirmed: user.confirmed,
   };
   const token = createToken(payload);
-  res.cookie("token", token, {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // true if in production
-    sameSite: "None",
-  });
 
-  res.status(201).json({ data: user, token });
+  res.status(201).json(token);
 });
 
 // @desc    Login
@@ -56,9 +60,16 @@ exports.login = asyncHandler(async (req, res, next) => {
   if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
     return next(new ApiError("Incorrect email or password", 401));
   }
+
+  // Also verify if the user has a confirmed email or not
+  if (!user.confirmed) {
+    return next(new ApiError("Please confirm your Email", 401));
+  }
+
   // 3) generate token
   let payload = {
     id: user._id,
+    zohoID: user.zohoID,
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
@@ -66,19 +77,15 @@ exports.login = asyncHandler(async (req, res, next) => {
     city: user.city,
     type: user.type,
     role: user.role,
+    active: user.active,
+    confirmed: user.confirmed,
   };
   const token = createToken(payload);
-  res.cookie("token", token, {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // true if in production
-    sameSite: "None",
-  });
 
   // Delete password from response
   delete user._doc.password;
   // 4) send response to client side
-  res.status(200).json({ data: user, token });
+  res.status(200).json(token);
 });
 
 // @desc   make sure the user is logged in
@@ -260,12 +267,6 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     role: user.role,
   };
   const token = createToken(payload);
-  res.cookie("token", token, {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // true if in production
-    sameSite: "None",
-  });
 
-  res.status(200).json({ token });
+  res.status(200).json(token);
 });

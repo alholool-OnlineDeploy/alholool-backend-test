@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { v4: uuidv4 } = require("uuid");
-const { type } = require("os");
 
 const userSchema = new mongoose.Schema(
   {
@@ -9,6 +8,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: uuidv4,
     },
+    zohoID: { type: String, default: "none" },
     firstName: {
       type: String,
       trim: true,
@@ -29,8 +29,8 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    phone: { type: String, default: "Undefined" },
-    city: { type: String, default: "Undefined" },
+    phone: String,
+    city: String,
     password: {
       type: String,
       required: [true, "password required"],
@@ -56,6 +56,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    confirmed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
